@@ -51,3 +51,5 @@ Once the bot detects that your Chocobo has reached **Rank 40**, it will stop aut
 
 ```bash
 🛑 Chocobo is Rank 40 — stopping script.
+
+And shoutout to https://github.com/GitHixy/GitHixy-SND-Scripts/tree/main since I took a lot from their script
