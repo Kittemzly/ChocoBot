@@ -104,26 +104,77 @@ local function openDutyFinder()
     end
 end
 
-local function selectRaceDuty()
-    -- 1. Switch to the Gold Saucer tab
-    yield("/pcall ContentsFinder true 1 9")
-    yield("/wait " .. getRandomDelay(0.3, 0.7))
-    
-    -- 2. Clear any existing selection (assumed node 13)
-    yield("/pcall ContentsFinder true 13 0")
-    yield("/wait " .. getRandomDelay(0.3, 0.7))
-    log("Cleared any existing selections")
-    
-    -- 3. Select the duty using command type 3 with the proper duty index.
-    yield("/pcall ContentsFinder true 3 " .. dutyIndex)
-    yield("/wait " .. getRandomDelay(0.3, 0.7))
-    log("Selected " .. config.raceType .. " duty")
-    
-    -- 4. Click Join
-    yield("/pcall ContentsFinder true 12 0")
-    log("Clicked Join")
+-----------------------------------------------------------
+-- Duty Selection Helpers
+-----------------------------------------------------------
+
+-- Helper function to trim whitespace.
+local function trim(s)
+    return s:match("^%s*(.-)%s*$")
 end
 
+-- Verify the current duty selection state by reading node 15.
+-- Returns true if it exactly reads "1/1 selected" (case-insensitive), false otherwise.
+local function verifyDutySelection()
+    local selectionText = GetNodeText("ContentsFinder", 15)
+    local normalized = selectionText and string.lower(trim(selectionText)) or ""
+    if normalized == "1/1 selected" then
+        return true
+    else
+        return false
+    end
+end
+
+-- Reselects the duty up to maxAttempts if the state is not verified.
+local function reselectDutyIfNeeded()
+    local maxAttempts = 3
+    for attempt = 1, maxAttempts do
+        if verifyDutySelection() then
+            yield("/pcall ContentsFinder true 12 0")
+            log("Duty selection verified: 1/1 selected. Clicked Join")
+            return true
+        else
+            log("Duty selection state not valid (attempt " .. attempt .. "). Reselecting duty...")
+            yield("/pcall ContentsFinder true 13 0")
+            yield("/wait " .. getRandomDelay(0.3, 0.7))
+            yield("/pcall ContentsFinder true 3 " .. dutyIndex)
+            yield("/wait " .. getRandomDelay(0.3, 0.7))
+        end
+    end
+    log("Duty selection failed after " .. maxAttempts .. " attempts.")
+    return false
+end
+
+-- Ensure the duty selection is valid.
+-- On the very first run (state.totalRaces == 0), it performs an initial selection.
+-- On subsequent runs, if the selection isn't valid, it reselects the duty.
+local function ensureDutySelection()
+    if state.totalRaces == 0 then
+        -- First run: perform a fresh duty selection.
+        yield("/pcall ContentsFinder true 1 9")
+        yield("/wait " .. getRandomDelay(0.3, 0.7))
+        yield("/pcall ContentsFinder true 13 0")
+        yield("/wait " .. getRandomDelay(0.3, 0.7))
+        log("Cleared any existing selections for first run")
+        yield("/pcall ContentsFinder true 3 " .. dutyIndex)
+        yield("/wait " .. getRandomDelay(0.3, 0.7))
+        log("Selected " .. config.raceType .. " duty on first run")
+    end
+
+    -- Always verify the current selection.
+    if verifyDutySelection() then
+        yield("/pcall ContentsFinder true 12 0")
+        log("Duty selection verified: 1/1 selected. Clicked Join")
+        return true
+    else
+        log("Duty selection invalid; reselecting duty...")
+        return reselectDutyIfNeeded()
+    end
+end
+
+-----------------------------------------------------------
+-- Race Functions
+-----------------------------------------------------------
 local function waitForCommence()
     local timeout = 0
     while not IsAddonVisible("ContentsFinderConfirm") and timeout < MAX_WAIT_FOR_COMMENCE do
@@ -163,9 +214,6 @@ local function waitForRaceZone()
     end
 end
 
------------------------------------------------------------
--- In-Race Logic Functions
------------------------------------------------------------
 local function executeRace()
     yield("/hold W")
     local driftTime = getRandomizedInterval(7, 0.1)
@@ -272,7 +320,10 @@ while true do
     else
         openDutyFinder()
         if IsAddonVisible("ContentsFinder") then
-            selectRaceDuty()
+            -- Always ensure duty selection is correct.
+            -- On the first run, it selects the duty;
+            -- on subsequent runs, it only reselects if the state isn’t verified.
+            ensureDutySelection()
         end
         if not waitForCommence() then goto continue end
         if not waitForRaceZone() then goto continue end
