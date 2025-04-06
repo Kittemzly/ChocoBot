@@ -1,55 +1,52 @@
-# Chocobo Racing Automation Bot for FFXIV
+# Chocobo Racing Automation Script
 
-This Lua script automates the **Chocobo Racing** process in **Final Fantasy XIV** using the **SomethingNeedDoing (SND)** plugin for the Dalamud framework.
+This SND Lua script automates chocobo racing in FFXIV. It queues up races via the Duty Finder, executes race logic with randomized in-race inputs (for anti-detection), and retrieves your chocobo's rank and training info from the Gold Saucer. The script supports both starting fresh from outside a race and continuing if already in a race zone.
 
-The bot automates:
-- Chocobo race queuing
-- Selecting Sagolii Road (Gold Saucer)
-- Sending appropriate key presses during races
-- Handling post-race actions and checking for **Rank 40**
+## Features
 
-Once Rank 40 is reached, the bot will **automatically stop** racing.
+- **Automatic Duty Queueing:**  
+  Opens the Duty Finder, clears previous selections, and selects the appropriate duty based on your chosen race type.
 
-## 🚀 Features
+- **Race Execution:**  
+  Handles initial side-drift and in-race key presses with randomized timing to simulate human behavior.
 
-- **Auto-selects Sagolii Road**: Automatically selects the Chocobo race course **Sagolii Road** only once during each session.
-- **Race Management**: Waits for races to start, performs key presses like `KEY_1` and `KEY_2` at intervals, and manages race timing.
-- **Movement Handling**: Ensures smooth movement throughout the race by constantly holding the **W key** with no delays after key presses.
-- **Post-Race Handling**: After each race, the bot waits for the result screen and exits the race smoothly.
-- **Rank 40 Stop**: Once your Chocobo reaches **Rank 40**, the bot will stop automatically to prevent over-racing. 
+- **Chocobo Info Retrieval:**  
+  Opens the Gold Saucer to fetch your chocobo's rank, name, and available training sessions. The script stops when your chocobo reaches the target rank.
 
-## ⚙️ Setup
+- **Dual Start Handling:**  
+  Detects if you're already in a race zone and either queues or proceeds directly to race execution.
 
-### Prerequisites
+- **Configurable UI Speed:**  
+  Adjust UI delays to suit slower or faster PCs without affecting critical in-race timings.
 
-1. **Final Fantasy XIV** installed and running.
-2. **SomethingNeedDoing (SND)** plugin installed for the Dalamud framework.
-3. **Lua environment** compatible with SND (ensure you have Lua scripting enabled).
+- **Race Type Selection:**  
+  Choose from `random`, `sagolii`, `costa`, or `tranquil`. For random races, the script checks for any of the three valid zone IDs.
 
-### How to Use
+## Configuration
 
-1. Install **SomethingNeedDoing (SND)** if you haven’t already. You can find it in **FFXIV's Dalamud plugin repository**.
-2. Download this script and place it in your **SND script folder**.
-3. Run the script with **SND** to begin automating your Chocobo races.
+The only user-configurable settings are:
 
-### How It Works
+- `maxRank`: The target chocobo rank at which the script will stop.
+- `raceType`: The race type to run. Valid options are:
+  - `random`
+  - `sagolii`
+  - `costa`
+  - `tranquil`
+- `speed`: Set to `"fast"` or `"slow"` for UI handling delays.
 
-1. **Race Queuing**: The bot opens **Duty Finder** and queues for **Chocobo Racing** automatically.
-2. **Sagolii Road Selection**: The bot will automatically select **Sagolii Road** the first time during each session.
-3. **Race Execution**: It sends key presses at the appropriate times during the race for **speed boosts** and **key abilities**.
-4. **Post-Race**: The bot exits the race after completion, checks your Chocobo rank, and stops at **Rank 40**.
-5. **Infinite Loop**: The bot will continue racing until it reaches Rank 40, then it stops.
+All other parameters (e.g., wait times, duty selection indices, zone IDs) are managed internally.
 
-### Customization
+## Usage
 
-- **Adjust Key Press Intervals**: You can modify the intervals for when the bot sends keys like `KEY_1`, `KEY_2` in the `key_1_intervals` array.
-- **Change Race Course**: You can modify the course selection (Sagolii Road) if needed.
+1. **Install SND:** Ensure SND is installed and configured for FFXIV.
+2. **Load the Script:** Paste the complete script into your SND macro editor.
+3. **Configure:** Adjust `maxRank`, `raceType`, and `speed` in the configuration section as desired.
+4. **Run the Script:** Execute the macro. The script will automate the queueing, race execution, and chocobo info retrieval while logging progress in your chat.
 
-### Stopping at Rank 40
+## Disclaimer
 
-Once the bot detects that your Chocobo has reached **Rank 40**, it will stop automatically with the message:
+**Use at your own risk.** Automation in FFXIV may violate the game's terms of service. The author is not responsible for any consequences arising from the use of this script.
 
-```bash
-🛑 Chocobo is Rank 40 — stopping script.
+---
 
-And shoutout to https://github.com/GitHixy/GitHixy-SND-Scripts/tree/main since I took a lot from their script
+Happy Racing!
