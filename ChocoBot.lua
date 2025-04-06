@@ -7,7 +7,8 @@
 local config = {
     maxRank = 40,                -- Stop when reaching this rank
     raceType = "sagolii",         -- Options: "random", "sagolii", "costa", "tranquil"
-    speed = "fast"               -- Set to "fast" or "slow" for UI handling delays
+    speed = "fast",               -- Set to "fast" or "slow" for UI handling delays
+    uiWaitTimeout = 10           -- Maximum seconds to wait for UI elements
 }
 
 -- Internal constants (do not change)
@@ -61,19 +62,61 @@ local function getRandomizedInterval(baseValue, variance)
 end
 
 -----------------------------------------------------------
--- WaitForAddon Helper Function
+-- Enhanced UI Wait Functions
 -----------------------------------------------------------
 local function waitForAddon(addonName, timeout)
-    timeout = timeout or 5
+    timeout = timeout or config.uiWaitTimeout
     local elapsed = 0
+    local checkInterval = 0.5
+    
     while not IsAddonReady(addonName) and elapsed < timeout do
-        yield("/wait 0.5")
-        elapsed = elapsed + 0.5
+        yield("/wait " .. checkInterval)
+        elapsed = elapsed + checkInterval
     end
+    
     if not IsAddonReady(addonName) then
         yield("/echo [Chocobo Bot] Warning: " .. addonName .. " not ready after " .. timeout .. " seconds.")
         return false
     end
+    
+    -- Extra small delay to ensure UI is fully loaded
+    yield("/wait " .. getRandomDelay(0.1, 0.3))
+    return true
+end
+
+local function waitForAddonVisible(addonName, timeout)
+    timeout = timeout or config.uiWaitTimeout
+    local elapsed = 0
+    local checkInterval = 0.5
+    
+    while not IsAddonVisible(addonName) and elapsed < timeout do
+        yield("/wait " .. checkInterval)
+        elapsed = elapsed + checkInterval
+    end
+    
+    if not IsAddonVisible(addonName) then
+        yield("/echo [Chocobo Bot] Warning: " .. addonName .. " not visible after " .. timeout .. " seconds.")
+        return false
+    end
+    
+    return true
+end
+
+local function waitForNodeExist(addonName, nodeId, timeout)
+    timeout = timeout or config.uiWaitTimeout
+    local elapsed = 0
+    local checkInterval = 0.5
+    
+    while not IsNodeVisible(addonName, nodeId) and elapsed < timeout do
+        yield("/wait " .. checkInterval)
+        elapsed = elapsed + checkInterval
+    end
+    
+    if not IsNodeVisible(addonName, nodeId) then
+        yield("/echo [Chocobo Bot] Warning: Node " .. nodeId .. " in " .. addonName .. " not visible after " .. timeout .. " seconds.")
+        return false
+    end
+    
     return true
 end
 
@@ -100,11 +143,24 @@ local function openDutyFinder()
        and not isInRaceZone()
     then
         yield("/dutyfinder")
-        yield("/waitaddon ContentsFinder")
+        if not waitForAddon("ContentsFinder") then
+            log("Failed to open duty finder, retrying...")
+            yield("/dutyfinder")
+            if not waitForAddonVisible("ContentsFinder") then
+                log("Still failed to open duty finder. Will try again next cycle.")
+                return false
+            end
+        end
     end
+    return true
 end
 
 local function selectRaceDuty()
+    -- Wait for ContentsFinder to be fully ready
+    if not waitForAddon("ContentsFinder") then
+        return false
+    end
+    
     -- 1. Switch to the Gold Saucer tab
     yield("/pcall ContentsFinder true 1 9")
     yield("/wait " .. getRandomDelay(0.3, 0.7))
@@ -122,6 +178,7 @@ local function selectRaceDuty()
     -- 4. Click Join
     yield("/pcall ContentsFinder true 12 0")
     log("Clicked Join")
+    return true
 end
 
 local function waitForCommence()
@@ -132,7 +189,10 @@ local function waitForCommence()
         timeout = timeout + waitTime
     end
     if IsAddonVisible("ContentsFinderConfirm") then
-        yield("/waitaddon ContentsFinderConfirm")
+        if not waitForAddon("ContentsFinderConfirm") then
+            log("ContentsFinderConfirm addon not ready")
+            return false
+        end
         yield("/wait " .. getRawRandomDelay(0.3, 1.0))
         yield("/pcall ContentsFinderConfirm true 8")
         log("Clicked Commence")
@@ -147,7 +207,7 @@ local function waitForRaceZone()
     log("Waiting for zone load after commence...")
     local zoneWait = 0
     local zone = GetZoneID()
-    while not isInRaceZone() and zoneWait < 20 do
+    while not isInRaceZone() and zoneWait < MAX_WAIT_FOR_ZONE do
         yield("/wait " .. (1 * uiWaitMultiplier))
         zone = GetZoneID()
         zoneWait = zoneWait + (1 * uiWaitMultiplier)
@@ -219,12 +279,23 @@ local function handlePostRaceCleanup()
     yield("/release W")
     local waitTime = getRandomDelay(2.5, 3.5)
     yield("/wait " .. waitTime)
+    
     if IsAddonVisible("RaceChocoboResult") then
-        yield("/pcall RaceChocoboResult true 1 0 <wait.1>")
-        log("Exited race via result screen")
+        if waitForAddon("RaceChocoboResult") then
+            yield("/pcall RaceChocoboResult true 1 0 <wait.1>")
+            log("Exited race via result screen")
+        else
+            log("Race result screen not ready, waiting...")
+            yield("/wait 2")
+            if IsAddonVisible("RaceChocoboResult") then
+                yield("/pcall RaceChocoboResult true 1 0 <wait.1>")
+                log("Exited race via result screen (second attempt)")
+            end
+        end
     else
         log("Exited race via zone change")
     end
+    
     yield("/wait " .. getRandomDelay(1.5, 2))
 end
 
@@ -234,23 +305,43 @@ end
 local function open_gold_saucer_tab()
     if not IsAddonReady("GoldSaucerInfo") then
         yield("/goldsaucer")
-        yield("/wait " .. (1 * uiWaitMultiplier))
+        if not waitForAddon("GoldSaucerInfo", 5) then
+            log("GoldSaucerInfo addon not ready, retrying...")
+            yield("/goldsaucer")
+            if not waitForAddon("GoldSaucerInfo", 5) then
+                log("Failed to open Gold Saucer info")
+                return false
+            end
+        end
         yield("/callback GoldSaucerInfo true 0 1 119 0 0")
-        yield("/wait " .. (1 * uiWaitMultiplier))
+        yield("/wait " .. (0.5 * uiWaitMultiplier))
     end
+    return true
 end
 
 local function get_chocobo_info()
-    open_gold_saucer_tab()
-    yield("/wait " .. (0.2 * uiWaitMultiplier))
+    if not open_gold_saucer_tab() then
+        return 0, "Unknown", 0
+    end
+    
+    -- Wait for specific nodes to be ready
+    if not waitForNodeExist("GoldSaucerInfo", 16) then
+        log("Rank node not found")
+        return 0, "Unknown", 0
+    end
+    
     local rank = tonumber(GetNodeText("GoldSaucerInfo", 16)) or 0
     local name = GetNodeText("GoldSaucerInfo", 20) or "Unknown"
     local trainingSessionsAvailable = 0
+    
     if IsAddonReady("GSInfoChocoboParam") then
-        trainingSessionsAvailable = tonumber(GetNodeText("GSInfoChocoboParam", 9, 0)) or 0
+        if waitForNodeExist("GSInfoChocoboParam", 9) then
+            trainingSessionsAvailable = tonumber(GetNodeText("GSInfoChocoboParam", 9, 0)) or 0
+        end
     else
         yield("/echo [Chocobo] GSInfoChocoboParam not ready. Defaulting training sessions to 0.")
     end
+    
     yield("/echo [Chocobo] Rank: " .. rank)
     yield("/echo [Chocobo] Name: " .. name)
     yield("/echo [Chocobo] Training Sessions Available: " .. trainingSessionsAvailable)
@@ -261,7 +352,7 @@ end
 -----------------------------------------------------------
 -- Main Automation Loop
 -----------------------------------------------------------
-log("Starting fresh...")
+log("Starting Chocobo Racing Bot with UI wait improvements...")
 
 while true do
     if isInRaceZone() then
@@ -269,30 +360,44 @@ while true do
         executeRace()
         handlePostRaceCleanup()
     else
-        openDutyFinder()
-        if IsAddonVisible("ContentsFinder") then
-            selectRaceDuty()
+        if not openDutyFinder() then 
+            yield("/wait 3")
+            goto continue 
         end
+        
+        if IsAddonVisible("ContentsFinder") then
+            if not selectRaceDuty() then
+                log("Failed to select race duty")
+                yield("/wait 3")
+                goto continue
+            end
+        end
+        
         if not waitForCommence() then goto continue end
         if not waitForRaceZone() then goto continue end
         executeRace()
         handlePostRaceCleanup()
     end
 
-    while not IsAddonReady("GoldSaucerInfo") do
+    -- Try up to 3 times to get chocobo info
+    local rank, name, training = 0, "Unknown", 0
+    for attempt = 1, 3 do
+        if waitForAddon("GoldSaucerInfo", 3) or IsAddonReady("GoldSaucerInfo") then
+            rank, name, training = get_chocobo_info()
+            if rank > 0 then break end
+        end
         yield("/goldsaucer")
         yield("/wait 1")
     end
-
-    local rank, name, training = get_chocobo_info()
+    
     if rank >= config.maxRank then
-        log("� Chocobo is Rank " .. rank .. " — stopping script.")
+        log("◆ Chocobo is Rank " .. rank .. " — stopping script.")
         break
     end
 
     if not IsAddonVisible("ContentsFinder") then
         yield("/dutyfinder")
-        yield("/waitaddon ContentsFinder")
+        waitForAddonVisible("ContentsFinder", 5)
     end
 
     ::continue::
