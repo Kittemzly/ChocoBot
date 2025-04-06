@@ -216,7 +216,7 @@ end
 
 local function executeRace()
     yield("/hold W")
-    local driftTime = getRandomizedInterval(7, 0.1)
+    local driftTime = getRandomizedInterval(6, 0.1)
     log("Side-drifting for " .. driftTime .. "s")
     yield("/hold A")
     yield("/wait " .. driftTime)
