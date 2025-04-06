@@ -243,7 +243,7 @@ end
 
 local function get_chocobo_info()
     open_gold_saucer_tab()
-    yield("/wait " .. (0.2 * uiWaitMultiplier))
+    yield("/wait 1")
     local rank = tonumber(GetNodeText("GoldSaucerInfo", 16)) or 0
     local name = GetNodeText("GoldSaucerInfo", 20) or "Unknown"
     local trainingSessionsAvailable = 0
