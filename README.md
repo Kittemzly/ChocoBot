@@ -24,7 +24,7 @@ This SND Lua script automates chocobo racing in FFXIV. It queues up races via th
 
 ## Configuration
 
-The only user-configurable settings are:
+the main user-configurable settings are:
 
 - `maxRank`: The target chocobo rank at which the script will stop.
 - `raceType`: The race type to run. Valid options are:
@@ -34,14 +34,14 @@ The only user-configurable settings are:
   - `tranquil`
 - `speed`: Set to `"fast"` or `"slow"` for UI handling delays.
 
-All other parameters (e.g., wait times, duty selection indices, zone IDs) are managed internally.
+All other parameters (e.g., wait times, duty selection indices, zone IDs) can also be changed but there shouldnt be any need to.
 
 ## Usage
 
 1. **Install SND:** Ensure SND is installed and configured for FFXIV.
-2. **Load the Script:** Paste the complete script into your SND macro editor.
+2. **Load the Script:** Paste the complete script into your SND macro editor and make sure its set to LUA.
 3. **Configure:** Adjust `maxRank`, `raceType`, and `speed` in the configuration section as desired.
-4. **Run the Script:** Execute the macro. The script will automate the queueing, race execution, and chocobo info retrieval while logging progress in your chat.
+4. **Run the Script:** Execute the macro. The script will automate the queueing, race execution, and chocobo info retrieval while logging progress in your echo chat.
 
 ## Disclaimer
 
