@@ -1,6 +1,6 @@
 # Chocobo Racing Automation Script
 
-This SND Lua script automates chocobo racing in FFXIV. It queues up races via the Duty Finder, executes race logic with randomized in-race inputs (for anti-detection), and retrieves your chocobo's rank and training info from the Gold Saucer. The script supports both starting fresh from outside a race and continuing if already in a race zone.
+This SND Lua script automates chocobo racing in FFXIV. It queues up races via the Duty Finder, executes race logic with randomized in-race inputs and retrieves your chocobo's rank and training info from the Gold Saucer. The script supports both starting fresh from outside a race and continuing if already in a race zone.
 
 ## Features
 
