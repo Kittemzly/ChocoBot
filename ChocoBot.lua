@@ -239,7 +239,6 @@ function open_gold_saucer_tab()
     
     -- Use the working callback method to select the Chocobo tab
     yield("/callback GoldSaucerInfo true 0 1 2 0 0")
-    yield("/wait 2")
 end
 
 local function get_chocobo_info()
