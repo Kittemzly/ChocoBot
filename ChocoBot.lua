@@ -14,9 +14,9 @@ local config = {
 local MAX_WAIT_FOR_COMMENCE = 35   -- seconds (raw delay)
 local MAX_WAIT_FOR_ZONE = 20       -- seconds (raw delay)
 local W_REFRESH_INTERVAL = 5       -- seconds (for in-race refresh)
-local GOLDSAUCER_TAB = 9           -- Gold Saucer tab index (used with command "1 9")
 
 -- Mapping from race types to duty selection indices and zone IDs.
+-- For "random", a list of possible zone IDs is provided.
 local raceMapping = {
     random   = { dutyIndex = 3, zoneIDs = {390, 391, 389} },
     sagolii  = { dutyIndex = 4, zoneID = 390 },
@@ -105,10 +105,10 @@ local function openDutyFinder()
 end
 
 local function selectRaceDuty()
-    -- 1. Switch to the Gold Saucer tab using the "1 9" command.
+    -- 1. Switch to the Gold Saucer tab
     yield("/pcall ContentsFinder true 1 9")
-    yield("/wait " .. getRandomDelay(0.3, 0.7))  -- wait for the tab to load
-
+    yield("/wait " .. getRandomDelay(0.3, 0.7))
+    
     -- 2. Clear any existing selection (assumed node 13)
     yield("/pcall ContentsFinder true 13 0")
     yield("/wait " .. getRandomDelay(0.3, 0.7))
@@ -196,14 +196,14 @@ local function executeRace()
         for _, t in ipairs(key_1_intervals) do
             if counter == t then
                 yield("/send KEY_1")
-                yield("/hold W")  -- Immediately re-assert W after KEY_1
+                yield("/hold W")
                 break
             end
         end
         for _, t in ipairs(key_2_intervals) do
             if counter == t then
                 yield("/send KEY_2")
-                yield("/hold W")  -- Immediately re-assert W after KEY_2
+                yield("/hold W")
                 break
             end
         end
@@ -286,7 +286,7 @@ while true do
 
     local rank, name, training = get_chocobo_info()
     if rank >= config.maxRank then
-        log("🛑 Chocobo is Rank " .. rank .. " — stopping script.")
+        log("� Chocobo is Rank " .. rank .. " — stopping script.")
         break
     end
 
