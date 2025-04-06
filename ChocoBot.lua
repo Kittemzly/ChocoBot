@@ -282,7 +282,6 @@ end
 function open_gold_saucer_tab()
     if not IsAddonReady("GoldSaucerInfo") then
         yield("/goldsaucer")
-        waitForAddon("GoldSaucerInfo", 1)
     end
     
     -- Use the working callback method to select the Chocobo tab
@@ -291,7 +290,6 @@ end
 
 local function get_chocobo_info()
     open_gold_saucer_tab()
-    yield("/wait 1")
     local rank = tonumber(GetNodeText("GoldSaucerInfo", 16)) or 0
     local name = GetNodeText("GoldSaucerInfo", 20) or "Unknown"
     local trainingSessionsAvailable = 0
@@ -333,7 +331,7 @@ while true do
 
     while not IsAddonReady("GoldSaucerInfo") do
         yield("/goldsaucer")
-        yield("/wait 2")
+        yield("/wait 0.5")
     end
 
     local rank, name, training = get_chocobo_info()
