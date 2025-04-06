@@ -5,7 +5,7 @@ This SND Lua script automates chocobo racing in FFXIV. It queues up races via th
 ## Features
 
 - **Automatic Duty Queueing:**  
-  Opens the Duty Finder, clears previous selections, and selects the appropriate duty based on your chosen race type.
+  Will auitomatically clear selection and select your chosen race on initial run, and will check for 1/1 selected before pressing join on subseqeuent runs, and reselect if it somehow got unselected.
 
 - **Race Execution:**  
   Handles initial side-drift and in-race key presses with randomized timing to simulate human behavior.
