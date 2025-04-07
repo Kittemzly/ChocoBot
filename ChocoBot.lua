@@ -2,6 +2,10 @@
 -- Chocobo Racing Automation Script
 -- (User-configurable settings: maxRank, raceType, and speed only)
 -----------------------------------------------------------
+-----------------------------------------------------------
+-- IMPORTANT IF USING SUPERSPRINT IF YOURE USING BOTH
+-- CHOCO CURE AND SUPERSPRINT YOULL NEED TO GO CHANGE THE KEYPRESS FOR SUPERSPRINT TO THE CORRECT KEY
+-----------------------------------------------------------
 
 -- User-configurable settings:
 local config = {
@@ -214,6 +218,12 @@ local function waitForRaceZone()
         return false
     end
 end
+
+-----------------------------------------------------------
+-- Racing logic below
+-- If youre using non default keys 
+-- Or have supersprint on something other than 2 change it here
+-----------------------------------------------------------
 
 local function executeRace()
     if config.superSprint then
