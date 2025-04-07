@@ -5,8 +5,9 @@
 
 -- User-configurable settings:
 local config = {
-    maxRank = 40,                -- Stop when reaching this rank
+    maxRank = 50,                -- Stop when reaching this rank If you wanna use it as a win farm bot at max just set to 51
     raceType = "sagolii",         -- Options: "random", "sagolii", "costa", "tranquil"
+    superSprint = true,       -- Set to true to enable SuperSprint press loop
     speed = "fast"               -- Set to "fast" or "slow" for UI handling delays
 }
 
@@ -215,6 +216,17 @@ local function waitForRaceZone()
 end
 
 local function executeRace()
+    if config.superSprint then
+        log("Trying to SuperSprint")
+        repeat
+            yield("/send KEY_2")
+        until HasStatusId(1058) == true
+    end
+
+    if HasStatusId(1058) == true
+    then
+        log("Now Sprinting!")
+end
     yield("/hold W")
     local driftTime = getRandomizedInterval(6, 0.1)
     log("Side-drifting for " .. driftTime .. "s")
