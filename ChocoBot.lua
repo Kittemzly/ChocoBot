@@ -95,11 +95,11 @@ local function selectDuty()
     yield("/wait 0.5")
     
     local FoundDuty = false
-    for i = 1, list do
         yield("/pcall ContentsFinder true 13 0")
         yield("/wait 0.1")
         yield("/pcall ContentsFinder true 1 9")
         yield("/wait 0.1")
+    for i = 1, list do
         yield("/pcall ContentsFinder true 3 " .. i)
         yield("/wait 0.1")
         
