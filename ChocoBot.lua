@@ -84,10 +84,6 @@ end
 -----------------------------------------------------------
 local function selectDuty()
     -- Clear any previous selection.
-    if FoundDuty == false
-    then
-    yield("/pcall ContentsFinder true 13 0")
-    end 
     -- Wait until the ContentsFinder addon is ready.
     while not IsAddonReady("ContentsFinder") do
         yield("/wait 0.5")
@@ -100,6 +96,10 @@ local function selectDuty()
     
     local FoundDuty = false
     for i = 1, list do
+        yield("/pcall ContentsFinder true 13 0")
+        yield("/wait 0.1")
+        yield("/pcall ContentsFinder true 1 9")
+        yield("/wait 0.1")
         yield("/pcall ContentsFinder true 3 " .. i)
         yield("/wait 0.1")
         
