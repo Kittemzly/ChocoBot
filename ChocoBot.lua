@@ -4,10 +4,10 @@
 -----------------------------------------------------------
 -- User-configurable settings:
 local config = {
-    maxRank = 51,               -- Stop when reaching this rank; set to 51 for win-farm.
-    raceType = "sagolii",        -- Options: "random", "sagolii", "costa", "tranquil"
-    superSprint = true,         -- Enable SuperSprint press loop.
-    speed = "fast"              -- "fast" or "slow" for UI handling delays.
+    maxRank = 51,         -- Stop when reaching this rank; set to 51 for win-farm.
+    raceType = "sagolii", -- Options: "random", "sagolii", "costa", "tranquil"
+    superSprint = true,   -- Enable SuperSprint press loop.
+    speed = "fast"        -- "fast" or "slow" for UI handling delays.
 }
 
 -- Mapping from race types to duty names with correct names.
@@ -82,27 +82,23 @@ end
 -----------------------------------------------------------
 -- New Queueing (Duty Selection) Logic (from ChocoboRace)
 -----------------------------------------------------------
-local function selectDuty()
-    -- Clear any previous selection.
-    -- Wait until the ContentsFinder addon is ready.
+local
+function selectDuty()
     while not IsAddonReady("ContentsFinder") do
         yield("/wait 0.5")
     end
-    
+    -- Wait until the ContentsFinder addon is ready
+
     -- Retrieve total number of duties available.
     local list = GetNodeListCount("ContentsFinder")
     yield("/echo Total Duties Found: " .. list)
     yield("/wait 0.5")
-    
+
     local FoundDuty = false
-        yield("/pcall ContentsFinder true 13 0")
-        yield("/wait 0.1")
-        yield("/pcall ContentsFinder true 1 9")
-        yield("/wait 0.1")
     for i = 1, list do
         yield("/pcall ContentsFinder true 3 " .. i)
         yield("/wait 0.1")
-        
+
         local dutyText = GetNodeText("ContentsFinder", 14)
         local normalizedDutyText = string.lower(dutyText or "")
         local normalizedExpected = string.lower(expectedDuty)
@@ -112,13 +108,13 @@ local function selectDuty()
             break
         end
     end
-    
+
     if not FoundDuty then
         yield("/echo Error: Could not find the duty '" .. expectedDuty .. "'.")
         yield("/snd stop")
         return false
     end
-    
+
     -- Clear any previous selection and join the duty.
     yield("/pcall ContentsFinder true 12 0")
     return true
@@ -129,10 +125,11 @@ end
 -----------------------------------------------------------
 local function openDutyFinder()
     if not IsAddonVisible("ContentsFinder")
-       and not IsAddonVisible("ContentsFinderConfirm")
+        and not IsAddonVisible("ContentsFinderConfirm")
     then
         yield("/dutyfinder")
-        yield("/waitaddon ContentsFinder")
+        yield("/wait 0.5")
+        yield("/pcall ContentsFinder true 1 9")
     end
 end
 
@@ -158,7 +155,7 @@ end
 local function isInRaceZone()
     local currentZone = GetZoneID()
     if config.raceType == "random" then
-        local zones = {390, 391, 389}
+        local zones = { 390, 391, 389 }
         for _, zoneID in ipairs(zones) do
             if currentZone == zoneID then
                 return true
@@ -166,7 +163,7 @@ local function isInRaceZone()
         end
         return false
     else
-        local mapping = {sagolii = 390, costa = 389, tranquil = 391}
+        local mapping = { sagolii = 390, costa = 389, tranquil = 391 }
         return currentZone == mapping[config.raceType]
     end
 end
@@ -217,14 +214,14 @@ local function executeRace()
 
     -- Start with side-drift using a static drift time.
     yield("/hold W")
-    local driftTime = 6  -- Static drift time in seconds.
+    local driftTime = 6 -- Static drift time in seconds.
     log("Side-drifting for " .. driftTime .. "s")
     yield("/hold A")
     yield("/wait " .. driftTime)
     yield("/release A")
     log("Initial side-drift complete")
 
-    local key_1_intervals = {15,20,30,35,40,45,50,55,60,65,70,75,80,85,91,105,120,135}
+    local key_1_intervals = { 15, 20, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 91, 105, 120, 135 }
     local counter = 0
     repeat
         yield("/hold W")
@@ -299,7 +296,6 @@ while true do
         yield("/dutyfinder")
         yield("/waitaddon ContentsFinder")
     end
-
     ::continue::
 end
 
