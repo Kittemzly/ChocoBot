@@ -1,6 +1,7 @@
 -----------------------------------------------------------
--- Chocobo Racing Automation Script (Merged Version)
--- (Based on ChocoBot original with ChocoboRace queueing logic merged in.)
+-- Chocobo Racing Automation
+
+--- REQUIRES YESALREADY CHOCOBORACINGSCREEN BOTHER TURNED ON
 -----------------------------------------------------------
 -- User-configurable settings:
 local config = {
