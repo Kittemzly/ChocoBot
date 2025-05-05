@@ -9,7 +9,7 @@ local config = {
     superSprint     = true,      -- Enable SuperSprint press loop.
     hasChocoCure    = false,     -- Set to true if your chocobo has the ChocoCure trait.
     speed           = "fast",    -- "fast" or "slow" for UI handling delays.
-    maxRaces        = 1,        -- Maximum number of races before the script stops.
+    maxRaces        = 10,        -- Maximum number of races before the script stops.
 
     -- Keybindings (make these whatever you like)
     keyHoldW        = "W",       -- Key to hold forward
@@ -102,19 +102,19 @@ local function selectDuty()
     yield("/echo Total Duties Found: " .. list)
     yield("/wait 0.5")
 
-    local found = false
+    local foundDuty = false
     for i = 1, list do
         yield("/pcall ContentsFinder true 3 " .. i)
         yield("/wait 0.1")
         local dutyText = GetNodeText("ContentsFinder", 14) or ""
         if string.find(string.lower(dutyText), string.lower(expectedDuty), 1, true) then
-            found = true
+            foundDuty = true
             yield("/echo " .. expectedDuty .. " selected at position " .. i)
             break
         end
     end
 
-    if not found then
+    if not foundDuty then
         yield("/echo Error: Could not find the duty '" .. expectedDuty .. "'.")
         yield("/snd stop")
         return false
