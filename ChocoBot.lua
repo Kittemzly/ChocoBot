@@ -1,6 +1,12 @@
 -- Chocobo Racing Automation Script (Merged Version)
 -- (Based on ChocoBot original with ChocoboRace queueing logic merged in)
 -- Now with fully configurable keybindings
+
+
+
+--REQUIRED PLUGINS--
+--YesAlready and Ensure the ChocoboRaceResult Bother setting is turned on.
+--Pandora--
 -----------------------------------------------------------
 -- User-configurable settings:
 local config = {
