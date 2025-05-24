@@ -42,7 +42,7 @@ All other parameters (e.g., wait times, duty selection indices, zone IDs) can al
 
 ## Usage
 
-1. **Install SND:** Ensure SND is installed and configured for FFXIV.
+1. **Install SND:** Ensure SND (Expanded Edition) (Testing Version)is installed and configured for FFXIV.
 2. **Install YesAlready** Ensure the ChocoboRaceResult Bother setting is turned on.
 3. **Load the Script:** Paste the complete script into your SND macro editor and make sure its set to LUA.
 4. **Configure:** Adjust `maxRank`, `raceType`, and `speed` in the configuration section as desired.
