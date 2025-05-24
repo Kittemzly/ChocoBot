@@ -6,6 +6,18 @@ This SND Lua script automates chocobo racing in FFXIV. It queues up races via th
 Needs YesAlready chocoboraceresult bother turned on
 
 
+## Requirements
+
+1. **Install SND:** Ensure SND (Expanded Edition) (Testing Version)is installed and configured for FFXIV.
+2. **Install YesAlready** Ensure the ChocoboRaceResult Bother setting is turned on.
+2. **Install Pandora**
+3. **Load the Script:** Paste the complete script into your SND macro editor and make sure its set to LUA.
+4. **Configure:** Adjust `maxRank`, `raceType`, and `speed` in the configuration section as desired.
+5. **Run the Script:** Execute the macro. The script will automate the queueing, race execution, and chocobo info retrieval while logging progress in your echo chat.
+
+
+
+
 ## Features
 
 - **Automatic Duty Queueing:**  
@@ -39,15 +51,6 @@ the main user-configurable settings are:
 - `speed`: Set to `"fast"` or `"slow"` for UI handling delays.
 
 All other parameters (e.g., wait times, duty selection indices, zone IDs) can also be changed but there shouldnt be any need to.
-
-## Usage
-
-1. **Install SND:** Ensure SND (Expanded Edition) (Testing Version)is installed and configured for FFXIV.
-2. **Install YesAlready** Ensure the ChocoboRaceResult Bother setting is turned on.
-2. **Install Pandora**
-3. **Load the Script:** Paste the complete script into your SND macro editor and make sure its set to LUA.
-4. **Configure:** Adjust `maxRank`, `raceType`, and `speed` in the configuration section as desired.
-5. **Run the Script:** Execute the macro. The script will automate the queueing, race execution, and chocobo info retrieval while logging progress in your echo chat.
 
 ## Disclaimer
 
